@@ -45,4 +45,41 @@ az aks get-credentials --resource-group $(terraform output -raw rg_name) --name 
 ```
 
 ---
+### **DIA 1 - Salvando o gameplay - Azure storage - blob, files e disks**
+
+[![Dia0](imagens/Dia1.png)](https://youtu.be/0-r7Dg9epKY "Aula 0 da Jornada Kubernetes")
+
+Seguindo com a configuração do nosso cluster, foi adicionado o arquivo de **outputs.tf**:
+
+```hcl
+output "rg_name" {
+  value = module.aks_lab.resource_group_name
+}
+
+output "cluster_name" {
+  value = module.aks_lab.kubernetes_cluster_name
+}
+```
+
+# Comandos usados no vídeo:
+
+### Gerar app registration
+```
+az ad sp create-for-rbac --name <rbac-name> --role Contributor --scopes /subscriptions/<sub>
+```
+
+### Coletar e configurar as credenciais
+```
+az aks get-credentials --resource-group $(terraform output -raw rg_name) --name $(terraform output -raw cluster_name) --overwrite-existing
+```
+
+### Habilitar o blob driver
+```
+az aks update --enable-blob-driver --resource-group $(terraform output -raw rg_name) --name $(terraform output -raw cluster_name)
+```
+
+### Arquivos YAML
+[Dia 1 - Arquivos YAML](jornadak8s/tree/main/dia%201/yaml)
+
+---
 Este repositório faz parte da sequência de videos lançados pelo canal [Estação da TI](https://www.youtube.com/@estacaodati)

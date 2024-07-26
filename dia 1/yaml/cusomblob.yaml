@@ -1,0 +1,48 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azureblobcustom
+provisioner: blob.csi.azure.com
+parameters:
+  storageAccount: "jornadaakslab"
+reclaimPolicy: Retain
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azureblobcustom
+spec:
+  accessModes:
+  - ReadWriteMany
+  storageClassName: azureblobcustom
+  resources:
+    requests:
+      storage: 5Gi
+
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: mypod-customblob
+spec:
+  containers:
+  - name: mypod-customblob
+    image: mcr.microsoft.com/oss/nginx/nginx:1.17.3-alpine
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+    volumeMounts:
+    - mountPath: "/mnt/blob"
+      name: volume
+      readOnly: false
+  volumes:
+    - name: volume
+      persistentVolumeClaim:
+        claimName: azureblobcustom

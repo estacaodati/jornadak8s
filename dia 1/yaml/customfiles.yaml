@@ -1,0 +1,55 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: custom-azurefile
+provisioner: file.csi.azure.com
+allowVolumeExpansion: true
+mountOptions:
+ - dir_mode=0777
+ - file_mode=0777
+ - uid=0
+ - gid=0
+ - mfsymlinks
+ - cache=strict
+ - actimeo=30
+parameters:
+  skuName: Premium_LRS
+reclaimPolicy: Retain  
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: custom-azurefile
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: custom-azurefile
+  resources:
+    requests:
+      storage: 100Gi  
+
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: mypod-customfiles
+spec:
+  containers:
+    - name: mypod-customfiles
+      image: mcr.microsoft.com/oss/nginx/nginx:1.15.5-alpine
+      resources:
+        requests:
+          cpu: 100m
+          memory: 128Mi
+        limits:
+          cpu: 250m
+          memory: 256Mi
+      volumeMounts:
+        - mountPath: /mnt/azure
+          name: volume
+          readOnly: false
+  volumes:
+   - name: volume
+     persistentVolumeClaim:
+       claimName: custom-azurefile
